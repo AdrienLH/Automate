@@ -26,6 +26,7 @@ public class Automate extends MultiGraph {
 
     public Automate(String id) {
         super(id);
+        System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
         states = new ArrayList<State>();
         sigma = new HashSet<Character>();
         transitions = new HashSet<Transition>();
@@ -33,11 +34,15 @@ public class Automate extends MultiGraph {
         acceptableStates = new ArrayList<State>();
 
         this.addAttribute("sigma", sigma);
+        this.addAttribute("ui.quality");
+        this.addAttribute("ui.antialias");
         this.addAttribute("ui.stylesheet", stylesheet);
         nf=this.nodeFactory();
         
         this.addAttribute("transitions",transitions);
         this.addAttribute("states", states);
+        this.addAttribute("initialStates", initialStates);
+        this.addAttribute("acceptableStates", acceptableStates);
         
     }
     /*
@@ -45,7 +50,9 @@ public class Automate extends MultiGraph {
      */
 
     public State addState(String id) {
-        State st=this.addNode(id);
+        State st=null;//this.addNode(id);
+        this.addNodeCallback(new State(this, id, false, false));
+        st=this.getState(id);
         st.addAttribute("ui.class", "state");
         st.addAttribute("label", st);
         states.add(st);
@@ -76,20 +83,22 @@ public class Automate extends MultiGraph {
     public State addAcceptableState() {
         String id = this.getNodeCount() + "";
         State sFinal=this.addNode(id);
-        sFinal.addAttribute("acceptable", "acceptable");
         sFinal.addAttribute("ui.class", "acceptable");
         sFinal.addAttribute("label", id);
+        sFinal.setAcceptable(true);
         acceptableStates.add(sFinal);
         states.add(sFinal);
         return sFinal;
     }
 
     public State addAcceptableState(String id) {
-        State st =this.addNode(id);
+        State st =null;//this.addNode(id);
+        this.addNodeCallback(new State(this, id, false, true));
+        st=this.getState(id);
         st.setAcceptable(true);
-        st.addAttribute("acceptable", "acceptable");
         st.addAttribute("ui.class", "acceptable");
         st.addAttribute("label", st.getId());
+        st.setAcceptable(true);
         acceptableStates.add(st);
         states.add(st);
         return st;
@@ -101,18 +110,19 @@ public class Automate extends MultiGraph {
     public State addInitialState() {
         String id = this.getNodeCount() + "";
         State sInitial =this.addNode(id);
-        sInitial.addAttribute("initial", "initial");
         sInitial.addAttribute("ui.class", "initial");
         sInitial.addAttribute("label", id);
-        
+        sInitial.setInitial(true);
         initialStates.add(sInitial);
         states.add(sInitial);
         return sInitial;
     }
 
     public State addInitialState(String id) {
-        State st= this.addNode(id);
-        st.addAttribute("initial", "initial");
+        State st= null;
+        this.addNodeCallback(new State(this, id, true, false));
+        st=this.getState(id);
+        st.setInitial(true);
         st.addAttribute("ui.class", "initial");
         st.addAttribute("label", st.getId());
         
@@ -215,7 +225,6 @@ public class Automate extends MultiGraph {
         this.transitions = transitions;
     }
 
-    
     @Override
     public void read(String filename) {
         try {
@@ -241,8 +250,8 @@ public class Automate extends MultiGraph {
             //Récupération des états finaux
             tmp = new ArrayList<State>();
             for (Node node : this.getEachNode()) {
-                String s = node.getAttribute("final");
-                if (s != null && s.equals("final")) {
+                String s = node.getAttribute("acceptable");
+                if (s != null && s.equals("acceptable")) {
                     tmp.add((State) node);
                 }
             }
@@ -266,7 +275,10 @@ public class Automate extends MultiGraph {
             addAttribute("sigma", sigma);
 
             //Récupération des transitions
-            transitions.addAll((Collection)this.getAttribute("transitions"));
+//            String tran=this.getAttribute("transitions");
+//            System.out.print(tran);
+//            transitions=this.getAttribute("transitions");
+//            transitions.addAll((Collection)this.getAttribute("transitions"));
             for (Edge e : this.getEachEdge()) {
                 State a = e.getNode0();
                 State b = e.getNode1();
@@ -318,7 +330,6 @@ public class Automate extends MultiGraph {
                 return st;
             }
         };
-        
         return nodeF;
         
     }

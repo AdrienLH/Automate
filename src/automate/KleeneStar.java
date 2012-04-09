@@ -17,11 +17,12 @@ public class KleeneStar {
     private Automate resultat;
 
     public KleeneStar() {
-        resultat = new Automate("Etoile");
+        resultat = null;
     }
 
     public Automate kleeneStar(Automate automate) {
         
+        resultat=new Automate("("+automate.getId()+")"+"*");
         for(State st: automate.getStates()){
             resultat.addState(st.getId());
         }
@@ -32,7 +33,7 @@ public class KleeneStar {
             resultat.addTransition(resultat.getState(id1), resultat.getState(id2), t.getLettre());
         }
         
-        State init = resultat.addInitialState(automate.getId()+"*");
+        State init = resultat.addInitialState("I");
         
         for (State st : automate.getInitialStates()) {
             String id=st.getId();

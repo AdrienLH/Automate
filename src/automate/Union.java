@@ -19,17 +19,18 @@ public class Union {
     Automate resultat;
 
     public Union() {
-        resultat = new Automate("Union");
+        resultat=null;
     }
 
     public Automate union(Automate automate1, Automate automate2) {
-
+        
+        resultat = new Automate("("+automate1.getId()+")"+" U ("+automate2.getId()+")");
         if (automate1.equals(automate2)) {
             return automate1;
         } else {
             //Union automate1 et automate2 dans resultat
 
-            State init=resultat.addInitialState(automate1.getId()+" "+automate2.getId());
+            State init=resultat.addInitialState("I");
             for (State st : automate1.getStates()) {
                 resultat.addState(st.getId());
             }
