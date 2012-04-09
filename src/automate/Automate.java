@@ -36,7 +36,7 @@ public class Automate extends MultiGraph {
         this.addAttribute("sigma", sigma);
         this.addAttribute("ui.quality");
         this.addAttribute("ui.antialias");
-        this.addAttribute("ui.stylesheet", stylesheet);
+//        this.addAttribute("ui.stylesheet", stylesheet);
         nf=this.nodeFactory();
         
         this.addAttribute("transitions",transitions);
@@ -53,7 +53,6 @@ public class Automate extends MultiGraph {
         State st=null;//this.addNode(id);
         this.addNodeCallback(new State(this, id, false, false));
         st=this.getState(id);
-        st.addAttribute("ui.class", "state");
         st.addAttribute("label", st);
         states.add(st);
         return st;
@@ -62,7 +61,6 @@ public class Automate extends MultiGraph {
     public State addState() {
         String id = this.getNodeCount() + "";
         State st=this.addNode(id);
-        st.addAttribute("ui.class", "state");
         st.addAttribute("label", id);
         
         states.add(st);
@@ -83,7 +81,6 @@ public class Automate extends MultiGraph {
     public State addAcceptableState() {
         String id = this.getNodeCount() + "";
         State sFinal=this.addNode(id);
-        sFinal.addAttribute("ui.class", "acceptable");
         sFinal.addAttribute("label", id);
         sFinal.setAcceptable(true);
         acceptableStates.add(sFinal);
@@ -96,7 +93,6 @@ public class Automate extends MultiGraph {
         this.addNodeCallback(new State(this, id, false, true));
         st=this.getState(id);
         st.setAcceptable(true);
-        st.addAttribute("ui.class", "acceptable");
         st.addAttribute("label", st.getId());
         st.setAcceptable(true);
         acceptableStates.add(st);
@@ -110,7 +106,6 @@ public class Automate extends MultiGraph {
     public State addInitialState() {
         String id = this.getNodeCount() + "";
         State sInitial =this.addNode(id);
-        sInitial.addAttribute("ui.class", "initial");
         sInitial.addAttribute("label", id);
         sInitial.setInitial(true);
         initialStates.add(sInitial);
@@ -123,7 +118,6 @@ public class Automate extends MultiGraph {
         this.addNodeCallback(new State(this, id, true, false));
         st=this.getState(id);
         st.setInitial(true);
-        st.addAttribute("ui.class", "initial");
         st.addAttribute("label", st.getId());
         
         initialStates.add(st);
@@ -330,10 +324,4 @@ public class Automate extends MultiGraph {
         
     }
     
-    protected static String stylesheet =
-            "graph {padding :30;}"
-            + "node.acceptable {fill-color: yellow; size: 20px;}"
-            + "node.initial {fill-color: red; size: 20px;}"
-            + "node.state {fill-color: green; size: 20px;}"
-            + "edge{text-alignement: center}";
 }
