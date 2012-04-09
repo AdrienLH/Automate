@@ -275,10 +275,6 @@ public class Automate extends MultiGraph {
             addAttribute("sigma", sigma);
 
             //Récupération des transitions
-//            String tran=this.getAttribute("transitions");
-//            System.out.print(tran);
-//            transitions=this.getAttribute("transitions");
-//            transitions.addAll((Collection)this.getAttribute("transitions"));
             for (Edge e : this.getEachEdge()) {
                 State a = e.getNode0();
                 State b = e.getNode1();
