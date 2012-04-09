@@ -21,18 +21,33 @@ public class KleeneStar {
     }
 
     public Automate kleeneStar(Automate automate) {
-        resultat = automate;
-        State init = resultat.addInitialState(new State(resultat, "("+automate.getId() +")"+ "*", true, true));
-
-        for (State st : resultat.getAcceptableStates()) {
-            resultat.addTransition(st, init, '#');
+        
+        for(State st: automate.getStates()){
+            resultat.addState(st.getId());
+        }
+        
+        for(Transition t: automate.getTransitions()){
+            String id1=t.getState1().getId();
+            String id2=t.getState2().getId();
+            resultat.addTransition(resultat.getState(id1), resultat.getState(id2), t.getLettre());
+        }
+        
+        State init = resultat.addInitialState(automate.getId()+"*");
+        
+        for (State st : automate.getInitialStates()) {
+            String id=st.getId();
+            resultat.addTransition(init, resultat.getState(id), '#');
+        }
+        for (State st : automate.getAcceptableStates()) {
+            String id=st.getId();
+            resultat.addTransition(resultat.getState(id), init, '#');
         }
 
         for (State st : resultat.getInitialStates()) {
             if(!init.equals(st)){
                 resultat.addTransition(init, st, '#');
             }
-            st.setStart(false);
+            st.setInitial(false);
         }
         return resultat;
     }

@@ -38,15 +38,16 @@ public class Automate extends MultiGraph {
         
         this.addAttribute("transitions",transitions);
         this.addAttribute("states", states);
+        
     }
     /*
      * Ajout d'un etat au sein de l'automate
      */
 
-    public State addState(State st) {
+    public State addState(String id) {
+        State st=this.addNode(id);
         st.addAttribute("ui.class", "state");
-        st.addAttribute("label", st.getId());
-        this.addNode(st.getId());
+        st.addAttribute("label", st);
         states.add(st);
         return st;
     }
@@ -83,11 +84,12 @@ public class Automate extends MultiGraph {
         return sFinal;
     }
 
-    public State addAcceptableState(State st) {
+    public State addAcceptableState(String id) {
+        State st =this.addNode(id);
+        st.setAcceptable(true);
         st.addAttribute("acceptable", "acceptable");
         st.addAttribute("ui.class", "acceptable");
         st.addAttribute("label", st.getId());
-        this.addNode(st.getId());
         acceptableStates.add(st);
         states.add(st);
         return st;
@@ -108,17 +110,22 @@ public class Automate extends MultiGraph {
         return sInitial;
     }
 
-    public State addInitialState(State st) {
+    public State addInitialState(String id) {
+        State st= this.addNode(id);
         st.addAttribute("initial", "initial");
         st.addAttribute("ui.class", "initial");
         st.addAttribute("label", st.getId());
-        this.addNode(st.getId());
+        
         initialStates.add(st);
 
         states.add(st);
         return st;
     }
 
+    public State getState(String id){
+        return (State)super.getNode(id);
+    }
+    
     public ArrayList<State> getStates() {
         return states;
     }

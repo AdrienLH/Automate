@@ -3,7 +3,6 @@
  * and open the template in the editor.
  */
 package automate;
-import org.graphstream.graph.NodeFactory;
 import org.graphstream.graph.implementations.MultiNode;
 
 /**
@@ -24,7 +23,7 @@ public class State extends MultiNode{
         this.acceptable = isAcceptable;
     }
 
-    public void setStart(boolean isStart) {
+    public void setInitial(boolean isStart) {
         this.initial = isStart;
     }
 

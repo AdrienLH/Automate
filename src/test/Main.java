@@ -4,13 +4,14 @@
  */
 package test;
 
-import automate.State;
 import automate.Automate;
-import automate.*;
+import automate.KleeneStar;
+import automate.State;
+import automate.Union;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.graphstream.graph.Node;
+
 
 /**
  *
@@ -20,8 +21,8 @@ public class Main {
 
     public static void main(String[] arg) {
         Automate automate1 = new Automate("a(ba)*");
-        State init1 = automate1.addInitialState(new State(automate1, "0", true, false));
-        State finale = automate1.addAcceptableState(new State(automate1, "1", false, true));
+        State init1 = automate1.addInitialState("0");
+        State finale = automate1.addAcceptableState("1");
         automate1.addLettre('a');
         automate1.addLettre('b');
         automate1.addTransition(init1, finale, 'a');
@@ -35,8 +36,8 @@ public class Main {
 //            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //
-        State init2 = automate2.addInitialState(new State(automate2, "2", true, false));
-        State finale2 = automate2.addAcceptableState(new State(automate2, "3", false, true));
+        State init2 = automate2.addInitialState("2");
+        State finale2 = automate2.addAcceptableState("3");
         automate2.addLettre('a');
         automate2.addLettre('b');
         automate2.addTransition(init2, finale2, 'a');
@@ -50,13 +51,13 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-//        Union u = new Union();
-//        KleeneStar kl = new KleeneStar();
+        Union u = new Union();
+        KleeneStar kl = new KleeneStar();
 //        
         automate1.display();
         automate2.display();
-//        kl.kleeneStar(automate1).display();
-//        u.union(automate1, automate2).display();
+        kl.kleeneStar(automate1).display();
+        u.union(automate1, automate2).display();
 //        try {
 //            u.union(automate1, automate2).write("fichier_union.dgs");
 //        } catch (IOException ex) {
