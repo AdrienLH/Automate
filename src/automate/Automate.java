@@ -236,7 +236,9 @@ public class Automate extends MultiGraph {
             for (Node node : this.getEachNode()) {
                 String s = node.getAttribute("initial");
                 if (s != null && s.equals("initial")) {
-                    tmp.add((State) node);
+                    State st=(State)node;
+                    st.setInitial(true);
+                    tmp.add(st);
                 }
             }
             initialStates = tmp;
@@ -246,7 +248,9 @@ public class Automate extends MultiGraph {
             for (Node node : this.getEachNode()) {
                 String s = node.getAttribute("acceptable");
                 if (s != null && s.equals("acceptable")) {
-                    tmp.add((State) node);
+                    State st=(State)node;
+                    st.setAcceptable(true);
+                    tmp.add(st);
                 }
             }
             acceptableStates = tmp;
