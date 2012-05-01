@@ -22,7 +22,7 @@ public class Automate extends MultiGraph {
     private HashSet<Transition> transitions;
     private ArrayList<State> initialStates;
     private ArrayList<State> acceptableStates;
-    private NodeFactory  nf;
+    private NodeFactory nf;
 
     public Automate(String id) {
         super(id);
@@ -37,22 +37,22 @@ public class Automate extends MultiGraph {
         this.addAttribute("ui.quality");
         this.addAttribute("ui.antialias");
 //        this.addAttribute("ui.stylesheet", stylesheet);
-        nf=this.nodeFactory();
-        
-        this.addAttribute("transitions",transitions);
+        nf = this.nodeFactory();
+
+        this.addAttribute("transitions", transitions);
         this.addAttribute("states", states);
         this.addAttribute("initialStates", initialStates);
         this.addAttribute("acceptableStates", acceptableStates);
-        
+
     }
     /*
      * Ajout d'un etat au sein de l'automate
      */
 
     public State addState(String id) {
-        State st=null;//this.addNode(id);
+        State st = null;//this.addNode(id);
         this.addNodeCallback(new State(this, id, false, false));
-        st=this.getState(id);
+        st = this.getState(id);
         st.addAttribute("label", st);
         states.add(st);
         return st;
@@ -60,9 +60,10 @@ public class Automate extends MultiGraph {
 
     public State addState() {
         String id = this.getNodeCount() + "";
-        State st=this.addNode(id);
+        this.addNodeCallback(new State(this, id, false, false));
+        State st=this.getState(id);
         st.addAttribute("label", id);
-        
+
         states.add(st);
         return st;
     }
@@ -80,8 +81,10 @@ public class Automate extends MultiGraph {
      */
     public State addAcceptableState() {
         String id = this.getNodeCount() + "";
-        State sFinal=this.addNode(id);
+        this.addNodeCallback(new State(this, id, false, true));
+        State sFinal = this.getState(id);
         sFinal.addAttribute("label", id);
+        sFinal.addAttribute("ui.class", "acceptable");
         sFinal.setAcceptable(true);
         acceptableStates.add(sFinal);
         states.add(sFinal);
@@ -89,11 +92,12 @@ public class Automate extends MultiGraph {
     }
 
     public State addAcceptableState(String id) {
-        State st =null;//this.addNode(id);
+        State st = null;//this.addNode(id);
         this.addNodeCallback(new State(this, id, false, true));
-        st=this.getState(id);
+        st = this.getState(id);
         st.setAcceptable(true);
         st.addAttribute("label", st.getId());
+        st.addAttribute("ui.class", "acceptable");
         st.setAcceptable(true);
         acceptableStates.add(st);
         states.add(st);
@@ -105,8 +109,10 @@ public class Automate extends MultiGraph {
      */
     public State addInitialState() {
         String id = this.getNodeCount() + "";
-        State sInitial =this.addNode(id);
+        this.addNodeCallback(new State(this, id, true, false));
+        State sInitial = this.getState(id);
         sInitial.addAttribute("label", id);
+        sInitial.addAttribute("ui.class", "initial");
         sInitial.setInitial(true);
         initialStates.add(sInitial);
         states.add(sInitial);
@@ -114,22 +120,23 @@ public class Automate extends MultiGraph {
     }
 
     public State addInitialState(String id) {
-        State st= null;
+        State st = null;
         this.addNodeCallback(new State(this, id, true, false));
-        st=this.getState(id);
+        st = this.getState(id);
+        st.addAttribute("ui.class", "initial");
         st.setInitial(true);
         st.addAttribute("label", st.getId());
-        
+
         initialStates.add(st);
 
         states.add(st);
         return st;
     }
 
-    public State getState(String id){
-        return (State)super.getNode(id);
+    public State getState(String id) {
+        return (State) super.getNode(id);
     }
-    
+
     public ArrayList<State> getStates() {
         return states;
     }
@@ -153,16 +160,41 @@ public class Automate extends MultiGraph {
     }
 
     public void removeLettre(Character lettre) {
-        for(Transition t: transitions){
-            if(t.getLettre().equals(lettre)){
-                transitions.remove(t);
+        HashSet liste = new HashSet();
+        for (Edge e : getEachEdge()) {
+            if (e.getAttribute("lettres") != null) {
+                liste = e.getAttribute("lettres");
+                if (liste.contains(lettre)) {
+                    liste.remove(lettre);
+                    if (liste.isEmpty()) {
+                        this.removeEdge(e);
+                    }
+                }
             }
+            e.addAttribute("lettres", liste);
+            e.setAttribute("label", e.getAttribute("lettres").toString());
         }
         sigma.remove(lettre);
     }
-    
-    public void removeTransition(Transition t){
-        if(transitions.contains(t)){
+
+    public void removeTransition(Transition t) {
+        HashSet liste = new HashSet();
+        for (Edge e : getEachEdge()) {
+            if (e.getAttribute("lettres") != null) {
+                liste = e.getAttribute("lettres");
+                if (liste.contains(t.getLettre())) {
+                    liste.remove(t.getLettre());
+                    if (liste.isEmpty()) {
+                        this.removeEdge(e);
+                    }
+                }
+            }
+            if (e != null) {
+                e.addAttribute("lettres", liste);
+                e.setAttribute("label", e.getAttribute("lettres").toString());
+            }
+        }
+        if (transitions.contains(t)) {
             transitions.remove(t);
         }
     }
@@ -243,13 +275,13 @@ public class Automate extends MultiGraph {
                 tmp.add((State) st);
             }
             states = tmp;
-            
+
             //Récupération des états initiaux
             tmp = new ArrayList<State>();
             for (Node node : this.getEachNode()) {
                 String s = node.getAttribute("initial");
                 if (s != null && s.equals("initial")) {
-                    State st=(State)node;
+                    State st = (State) node;
                     st.setInitial(true);
                     tmp.add(st);
                 }
@@ -261,13 +293,13 @@ public class Automate extends MultiGraph {
             for (Node node : this.getEachNode()) {
                 String s = node.getAttribute("acceptable");
                 if (s != null && s.equals("acceptable")) {
-                    State st=(State)node;
+                    State st = (State) node;
                     st.setAcceptable(true);
                     tmp.add(st);
                 }
             }
             acceptableStates = tmp;
-            
+
             //Récupération de l'alphabet sigma
             HashSet<Character> tmpH = new HashSet<Character>();
             String chaine = this.getAttribute("sigma");
@@ -314,31 +346,31 @@ public class Automate extends MultiGraph {
         }
 
     }
-    
+
     @Override
-    public State addNode(String id){
-       State st=(State)nf.newInstance(id, this);
-       super.addNode(st.getId());
-       return st;
+    public State addNode(String id) {
+        State st = (State) nf.newInstance(id, this);
+        super.addNode(st.getId());
+        return st;
     }
-    
+
     @Override
-    public void addNodeCallback(AbstractNode st){
-        super.addNodeCallback((State)nf.newInstance(st.getId(), this));
+    public void addNodeCallback(AbstractNode st) {
+        super.addNodeCallback((State) nf.newInstance(st.getId(), this));
     }
+
     @Override
-    public NodeFactory<? extends State> nodeFactory(){
-        NodeFactory nodeF= new NodeFactory() {
+    public NodeFactory<? extends State> nodeFactory() {
+        NodeFactory nodeF = new NodeFactory() {
 
             @Override
             public State newInstance(String id, Graph au) {
                 //throw new UnsupportedOperationException("Not supported yet.");
-                State st=new State((Automate)au, id, false, false);
+                State st = new State((Automate) au, id, false, false);
                 return st;
             }
         };
         return nodeF;
-        
+
     }
-    
 }
