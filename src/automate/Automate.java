@@ -167,7 +167,7 @@ public class Automate extends MultiGraph {
         }
     }
 
-    public void addTransition(State a, State b, Character lettre) {
+    public Transition addTransition(State a, State b, Character lettre) {
         if (sigma.contains(lettre)) {
             if (a.hasEdgeToward(b)) {
                 Edge e = a.getEdgeBetween(b);
@@ -184,6 +184,7 @@ public class Automate extends MultiGraph {
             }
             Transition t = new Transition(a, b, lettre);
             transitions.add(t);
+            return t;
         } else {
             sigma.add(lettre);
             if (a.hasEdgeToward(b)) {
@@ -202,6 +203,7 @@ public class Automate extends MultiGraph {
             }
             Transition t = new Transition(a, b, lettre);
             transitions.add(t);
+            return t;
         }
 
     }
