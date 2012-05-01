@@ -117,6 +117,7 @@ public class Automate extends MultiGraph {
         initialStates.add(sInitial);
         states.add(sInitial);
         return sInitial;
+        
     }
 
     public State addInitialState(String id) {
