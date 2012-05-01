@@ -153,7 +153,18 @@ public class Automate extends MultiGraph {
     }
 
     public void removeLettre(Character lettre) {
+        for(Transition t: transitions){
+            if(t.getLettre().equals(lettre)){
+                transitions.remove(t);
+            }
+        }
         sigma.remove(lettre);
+    }
+    
+    public void removeTransition(Transition t){
+        if(transitions.contains(t)){
+            transitions.remove(t);
+        }
     }
 
     public void addTransition(State a, State b, Character lettre) {

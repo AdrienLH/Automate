@@ -4,6 +4,9 @@
  */
 package automate;
 
+import automate.Automate;
+import automate.State;
+import automate.Transition;
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.graphstream.graph.Edge;
