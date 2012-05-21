@@ -22,24 +22,39 @@ public class Union {
     Automate resultat;
 
     public Union() {
-        resultat=null;
+        resultat = null;
     }
 
     public Automate union(Automate automate1, Automate automate2) {
-        
-        resultat = new Automate("("+automate1.getId()+")"+" U ("+automate2.getId()+")");
+
+        resultat = new Automate("(" + automate1.getId() + ")" + " U (" + automate2.getId() + ")");
         if (automate1.equals(automate2)) {
-            return automate1;
+            resultat=automate1.getCopy();
+            return resultat;
         } else {
             //Union automate1 et automate2 dans resultat
-
-            State init=resultat.addInitialState("I");
             for (State st : automate1.getStates()) {
-                resultat.addState(st.getId());
+                if (st.isAcceptable()) {
+                    resultat.addAcceptableState(st.getId());
+                } else if (st.isInitial()) {
+                    resultat.addInitialState(st.getId());
+                } else if (st.isAcceptable() && st.isInitial()) {
+                    resultat.addInitialAcceptableState(st.getId());
+                } else {
+                    resultat.addState(st.getId());
+                }
             }
 
             for (State st : automate2.getStates()) {
-                resultat.addState(st.getId());
+                if (st.isAcceptable()) {
+                    resultat.addAcceptableState(st.getId());
+                } else if (st.isInitial()) {
+                    resultat.addInitialState(st.getId());
+                } else if (st.isAcceptable() && st.isInitial()) {
+                    resultat.addInitialAcceptableState(st.getId());
+                } else {
+                    resultat.addState(st.getId());
+                }
             }
 
             for (Transition t : automate1.getTransitions()) {
@@ -53,18 +68,7 @@ public class Union {
                 String id2 = t.getState2().getId();
                 resultat.addTransition(resultat.getState(id1), resultat.getState(id2), t.getLettre());
             }
-            
-            
-            for (State st : automate1.getInitialStates()) {
-                String id=st.getId();
-                resultat.addTransition(init, resultat.getState(id), '#');
-            }
-            
-            for (State st : automate2.getInitialStates()) {
-                String id=st.getId();
-                resultat.addTransition(init, resultat.getState(id), '#');
-            }
-            
+
             return resultat;
         }
     }

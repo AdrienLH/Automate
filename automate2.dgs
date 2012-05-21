@@ -1,7 +1,7 @@
 DGS004
 null 0 0
 cg  "initialStates":"[2]"
-cg  "transitions":"[Transition [lettre=b, node0=3, node1=3], Transition [lettre=a, node0=2, node1=3]]"
+cg  "transitions":"[Transition [lettre=a, node0=2, node1=3], Transition [lettre=b, node0=3, node1=3]]"
 cg  "sigma":"[b, a]"
 cg  "acceptableStates":"[3]"
 cg  "ui.antialias":"true"
@@ -18,7 +18,7 @@ cn "3"  "ui.class":"acceptable"
 cn "3"  "label":"3"
 ae "2-3" "2" > "3"
 ce "2-3"  "lettres":"[a]"
-ce "2-3"  "label":"[a]"
+ce "2-3"  "label":"a"
 ae "3-3" "3" > "3"
 ce "3-3"  "lettres":"[b]"
-ce "3-3"  "label":"[b]"
+ce "3-3"  "label":"b"
