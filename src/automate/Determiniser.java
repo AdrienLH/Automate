@@ -21,11 +21,10 @@ public class Determiniser {
         State R = null;
         Standardisation stdOp = new Standardisation();
         resultat = new Automate(automate.getId());
-//        resultat.addInitialState(au.getInitialStates().get(0).getId());
+
+
+
         Queue<State> T = new LinkedList<State>();
-//        for(State st: au.getInitialStates()){
-//            resultat.addInitialState(st.getId());
-//        }
 
         Automate auStd = new Automate(automate.getId());
         if (automate.getInitialStates().size() != 1) {
@@ -35,16 +34,27 @@ public class Determiniser {
         }
 
         T.addAll(auStd.getInitialStates());
+        ArrayList<State> alState = new ArrayList<State>();
         while (!T.isEmpty()) {
             State P = T.remove();
-            if (P.getId().split(",").length == 1) {
-                if (resultat.getState(P.getId()) == null) {
-                    resultat.addState(P.getId());
-                }
+
+
+            if (resultat.getState(P.getId()) == null) {
+                resultat.addState(P.getId());
+            }
+
+            for (String s : P.getId().split(",")) {
+                alState.add(auStd.getState(s));
+            }
+
+            resultat.getState(P.getId()).addAttribute("visite", "visite");
+            HashSet<Character> listChar = new HashSet<Character>();
+
+            String id = "";
+            for (State st : alState) {
                 for (Character a : auStd.getSigma()) {
-                    String id = "";
                     for (Transition t : auStd.getTransitions()) {
-                        if (t.getState1().getId().equals(P.getId()) && t.getLettre().equals(a)) {
+                        if (t.getState1().getId().equals(st.getId()) && t.getLettre().equals(a) && !listChar.contains(a)) {
                             if (id.isEmpty()) {
                                 id = t.getState2().getId();
                             } else {
@@ -54,41 +64,41 @@ public class Determiniser {
                     }
                     if (!id.isEmpty()) {
                         if (resultat.getState(id) == null) {
-                            R = resultat.addState(id);
-                        }
-                        resultat.addTransition(P, R, a);
-                        T.add(R);
-                    }
-                }
-
-            } else {
-                for (String s : P.getId().split(",")) {
-                    for (Character a : auStd.getSigma()) {
-                        String id = "";
-                        for (Transition t : auStd.getTransitions()) {
-                            if (t.getState1().equals(auStd.getState(s)) && t.getLettre().equals(a)) {
-                                if (id.isEmpty()) {
-                                    id = t.getState2().getId();
-                                } else {
-                                    id = id + "," + t.getState2().getId();
-                                }
-                            }
-                        }
-                        if (!id.isEmpty()) {
-                            if (resultat.getState(id) == null) {
+                            if(auStd.getState(st.getId()).isAcceptable()){
+                                R = resultat.addAcceptableState(id);
+                            }else{
                                 R = resultat.addState(id);
                             }
-                            resultat.addTransition(P, R, a);
-//                            
+                            
                         }
+                        resultat.addTransition(P, R, a);
+                        listChar.add(a);
+                        if (R.getAttribute("visite") == null) {
+                            T.add(R);
+                        }
+
                     }
-                    T.add(R);
+                    id="";
                 }
                 
+                //============Gestion de l'etat puit ===============
+//                if(listChar.size()<auStd.getSigma().size()){
+//                    if(resultat.getState("#")==null){
+//                        resultat.addState("#");
+//                    }
+//                    
+//                    for(Transition t1: resultat.getTransitions()){
+//                        if(t1.getState1().getId().equals(P.getId()) && !listChar.contains(t1.getLettre())){
+//                            resultat.addTransition(resultat.getState(P.getId()), resultat.getState("#"), t1.getLettre());
+//                        }
+//                    }
+//                }
+   
             }
-            System.out.println();
+            alState.clear();
         }
-
+        
+        
         return resultat;
     }
 }

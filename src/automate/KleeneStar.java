@@ -71,7 +71,6 @@ public class KleeneStar {
                 itState.next();
                 count++;
             }
-            System.out.println(count);
             if (count == 0) {
                 resultat.removeState(st);
             }

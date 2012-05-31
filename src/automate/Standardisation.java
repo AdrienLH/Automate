@@ -24,7 +24,7 @@ public class Standardisation {
             return au.getCopy();
         } else {
             resultat = new Automate(au.getId());
-            State d = resultat.addInitialState(au.getNodeCount() + "");
+            State d = resultat.addInitialState(String.valueOf(au.getNodeCount() + ""));
             for (State st : au.getStates()) {
                 if (st.isAcceptable()) {
                     resultat.addAcceptableState(st.getId());
@@ -36,6 +36,10 @@ public class Standardisation {
                     }
                 } else if (st.isAcceptable() && st.isInitial()) {
                     resultat.addAcceptableState(st.getId());
+                   
+                        d.setAcceptable(true);
+//                        resultat.getAcceptableStates().add(d);
+                    
                 } else {
                     resultat.addState(st.getId());
                 }
@@ -47,8 +51,9 @@ public class Standardisation {
                 String id2 = t.getState2().getId();
                 resultat.addTransition(resultat.getState(id1), resultat.getState(id2), t.getLettre());
             }
+            
             for (Transition t : au.getTransitions()) {
-                if (t.getState1().isInitial()) {
+                if ((t.getState1().isInitial()) || (t.getState1().isInitial() && t.getState1().isAcceptable())) {
                     resultat.addTransition(d, resultat.getState(t.getState2().getId()), t.getLettre());
                 }
             }

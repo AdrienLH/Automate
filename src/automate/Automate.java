@@ -298,9 +298,9 @@ public class Automate extends MultiGraph {
     public Automate getCopy() {
         Automate copy = new Automate(this.getId());
         for (State st : this.getStates()) {
-            if (st.isAcceptable()) {
+            if (st.isAcceptable() && !st.isInitial()) {
                 copy.addAcceptableState(st.getId());
-            } else if (st.isInitial()) {
+            } else if (st.isInitial() && !st.isAcceptable()) {
                 copy.addInitialState(st.getId());
             } else if (st.isAcceptable() && st.isInitial()) {
                 copy.addInitialAcceptableState(st.getId());
