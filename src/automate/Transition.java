@@ -2,6 +2,13 @@ package automate;
 
 import org.graphstream.graph.Node;
 
+/**
+ *
+ * @author adrien
+ * TPE Master 1
+ * AS 2011-2012
+ * Classe representant une transition au sein de l'automate
+ */
 public class Transition {
 
     State state1;

@@ -11,7 +11,15 @@ import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.AbstractNode;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.stream.GraphParseException;
+import org.graphstream.ui.spriteManager.SpriteManager;
 
+/**
+ *
+ * @author adrien
+ * TPE Master 1
+ * AS 2011-2012
+ * Classe representant un automate
+ */
 public class Automate extends MultiGraph {
 
     private ArrayList<State> states;
@@ -20,26 +28,30 @@ public class Automate extends MultiGraph {
     private ArrayList<State> initialStates;
     private ArrayList<State> acceptableStates;
     private NodeFactory nf;
-
+    private SpriteManager spriteManager;
+    public static final String TRANSITIONS="transitions";
+    public static final String SIGMA="sigma";
+    public static final String STATES="states";
+    public static final String INITIAL_STATES="initialStates";
+    public static final String ACCEPTABLE_STATES="acceptableStates";
+    public static final String LETTRES="lettres";
     public Automate(String id) {
         super(id);
-        System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+        WearingSprite.wearAutomate(this);
         states = new ArrayList<State>();
         sigma = new HashSet<Character>();
         transitions = new HashSet<Transition>();
         initialStates = new ArrayList<State>();
         acceptableStates = new ArrayList<State>();
 
-        this.addAttribute("sigma", sigma);
-        this.addAttribute("ui.quality");
-        this.addAttribute("ui.antialias");
-//        this.addAttribute("ui.stylesheet", stylesheet);
+        this.addAttribute(SIGMA, sigma);
         nf = this.nodeFactory();
 
-        this.addAttribute("transitions", transitions);
-        this.addAttribute("states", states);
-        this.addAttribute("initialStates", initialStates);
-        this.addAttribute("acceptableStates", acceptableStates);
+        this.addAttribute(TRANSITIONS, transitions);
+        this.addAttribute(STATES, states);
+        this.addAttribute(INITIAL_STATES, initialStates);
+        this.addAttribute(ACCEPTABLE_STATES, acceptableStates);
+        spriteManager = new SpriteManager(this);
 
     }
     /*
@@ -85,7 +97,7 @@ public class Automate extends MultiGraph {
             }
         }
 
-
+        WearingSprite.removeAllSprite(spriteManager, state.getId(), state.isInitial(), state.isAcceptable());
         this.removeNode(state);
     }
 
@@ -98,6 +110,7 @@ public class Automate extends MultiGraph {
         sFinal.addAttribute("label", id);
         sFinal.addAttribute("ui.class", "acceptable");
         sFinal.setAcceptable(true);
+        WearingSprite.putAcceptableSprite(spriteManager, sFinal);
         acceptableStates.add(sFinal);
         states.add(sFinal);
         return sFinal;
@@ -109,6 +122,7 @@ public class Automate extends MultiGraph {
         st.addAttribute("label", st.getId());
         st.addAttribute("ui.class", "acceptable");
         st.setAcceptable(true);
+        WearingSprite.putAcceptableSprite(spriteManager, st);
         acceptableStates.add(st);
         states.add(st);
         return st;
@@ -121,6 +135,7 @@ public class Automate extends MultiGraph {
         sFinal.addAttribute("ui.class", "initial_acceptable");
         sFinal.setInitial(true);
         sFinal.setAcceptable(true);
+        WearingSprite.putInitialAcceptableSprite(spriteManager, sFinal);
         acceptableStates.add(sFinal);
         initialStates.add(sFinal);
         states.add(sFinal);
@@ -133,6 +148,7 @@ public class Automate extends MultiGraph {
         sFinal.addAttribute("ui.class", "initial_acceptable");
         sFinal.setInitial(true);
         sFinal.setAcceptable(true);
+        WearingSprite.putInitialAcceptableSprite(spriteManager, sFinal);
         acceptableStates.add(sFinal);
         initialStates.add(sFinal);
         states.add(sFinal);
@@ -148,6 +164,7 @@ public class Automate extends MultiGraph {
         sInitial.addAttribute("label", id);
         sInitial.addAttribute("ui.class", "initial");
         sInitial.setInitial(true);
+        WearingSprite.putInitialSprite(spriteManager, sInitial);
         initialStates.add(sInitial);
         states.add(sInitial);
         return sInitial;
@@ -157,11 +174,10 @@ public class Automate extends MultiGraph {
     public State addInitialState(String id) {
         State st = this.addNode(id);
         st.addAttribute("ui.class", "initial");
+        st.addAttribute("label", id);
         st.setInitial(true);
-        st.addAttribute("label", st.getId());
-
+        WearingSprite.putInitialSprite(spriteManager, st);
         initialStates.add(st);
-
         states.add(st);
         return st;
     }
@@ -171,7 +187,8 @@ public class Automate extends MultiGraph {
     }
 
     public ArrayList<State> getStates() {
-        return states;
+
+        return  states;
     }
 
     public ArrayList<State> getInitialStates() {
@@ -189,7 +206,9 @@ public class Automate extends MultiGraph {
     }
 
     public void addLettre(Character lettre) {
+        this.removeAttribute(SIGMA);
         sigma.add(lettre);
+        this.addAttribute(SIGMA, sigma);
     }
 
     public void removeLettre(Character lettre) {
@@ -203,8 +222,8 @@ public class Automate extends MultiGraph {
         Collection<Edge> alE = this.getEdgeSet();
         HashSet liste = new HashSet();
         for (Edge e : getEachEdge()) {
-            if (e.getAttribute("lettres") != null) {
-                liste = e.getAttribute("lettres");
+            if (e.getAttribute(LETTRES) != null) {
+                liste = e.getAttribute(LETTRES);
                 if (liste.contains(lettre)) {
                     liste.remove(lettre);
                     if (liste.isEmpty()) {
@@ -212,89 +231,120 @@ public class Automate extends MultiGraph {
                     }
                 }
             }
-            e.addAttribute("lettres", liste);
-            String label = e.getAttribute("lettres").toString();
+            e.addAttribute(LETTRES, liste);
+            String label = e.getAttribute(LETTRES).toString();
             label = label.substring(1, label.length() - 1);
-            e.addAttribute("label", label);
+            WearingSprite.putSpriteOnEdge(spriteManager, e, label);
         }
+        this.removeAttribute(SIGMA);
         sigma.remove(lettre);
+        this.addAttribute(SIGMA, sigma);
+
     }
 
     public void removeTransition(Transition t) {
         HashSet liste = new HashSet();
         for (Edge e : getEachEdge()) {
-            if (e.getAttribute("lettres") != null) {
-                liste = e.getAttribute("lettres");
+            if (e.getAttribute(LETTRES) != null) {
+                liste = e.getAttribute(LETTRES);
                 if (liste.contains(t.getLettre())) {
                     liste.remove(t.getLettre());
                     if (liste.isEmpty()) {
+                        WearingSprite.removeSpriteOnEdge(spriteManager, e);
                         this.removeEdge(e);
                     }
                 }
             }
             if (e != null) {
-                e.addAttribute("lettres", liste);
-                String label = e.getAttribute("lettres").toString();
+                e.addAttribute(LETTRES, liste);
+                String label = e.getAttribute(LETTRES).toString();
                 label = label.substring(1, label.length() - 1);
-                e.addAttribute("label", label);
+                WearingSprite.putSpriteOnEdge(spriteManager, e, label);
             }
         }
         if (transitions.contains(t)) {
+             this.removeAttribute(TRANSITIONS);
             transitions.remove(t);
+            this.addAttribute(TRANSITIONS, transitions);
         }
     }
 
     public Transition addTransition(State a, State b, Character lettre) {
         if (sigma.contains(lettre)) {
             if (a.hasEdgeToward(b)) {
-                Edge e = a.getEdgeBetween(b);
-                HashSet liste = e.getAttribute("lettres");
+                Edge e = a.getEdgeToward(b);
+                HashSet liste = e.getAttribute(LETTRES);
                 liste.add(lettre);
-                e.addAttribute("lettres", liste);
-                String label = e.getAttribute("lettres").toString();
+                e.addAttribute(LETTRES, liste);
+                String label = e.getAttribute(LETTRES).toString();
                 label = label.substring(1, label.length() - 1);
-                e.addAttribute("label", label);
+                WearingSprite.putSpriteOnEdge(spriteManager, e, label);
             } else {
                 String id = a.getId() + "-" + b.getId();
                 Edge e = this.addEdge(id, a, b, true);
                 HashSet liste = new HashSet();
                 liste.add(lettre);
-                e.addAttribute("lettres", liste);
-                String label = e.getAttribute("lettres").toString();
+                e.addAttribute(LETTRES, liste);
+                String label = e.getAttribute(LETTRES).toString();
                 label = label.substring(1, label.length() - 1);
-                e.addAttribute("label", label);
+                WearingSprite.putSpriteOnEdge(spriteManager, e, label);
             }
             Transition t = new Transition(a, b, lettre);
+            this.removeAttribute(TRANSITIONS);
             transitions.add(t);
+            this.addAttribute(TRANSITIONS, transitions);
             return t;
         } else {
             sigma.add(lettre);
             if (a.hasEdgeToward(b)) {
 
                 Edge e = a.getEdgeBetween(b);
-                HashSet liste = e.getAttribute("lettres");
+                HashSet liste = e.getAttribute(LETTRES);
                 liste.add(lettre);
-                e.addAttribute("lettres", liste);
-                String label = e.getAttribute("lettres").toString();
+                e.addAttribute(LETTRES, liste);
+                String label = e.getAttribute(LETTRES).toString();
                 label = label.substring(1, label.length() - 1);
-                e.addAttribute("label", label);
+                WearingSprite.putSpriteOnEdge(spriteManager, e, label);
             } else {
                 String id = a.getId() + "-" + b.getId();
                 Edge e = this.addEdge(id, a, b, true);
                 HashSet liste = new HashSet();
                 liste.add(lettre);
-                e.addAttribute("lettres", liste);
-                String label = e.getAttribute("lettres").toString();
+                e.addAttribute(LETTRES, liste);
+                String label = e.getAttribute(LETTRES).toString();
                 label = label.substring(1, label.length() - 1);
-                e.addAttribute("label", label);
+                WearingSprite.putSpriteOnEdge(spriteManager, e, label);
             }
             Transition t = new Transition(a, b, lettre);
+             this.removeAttribute(TRANSITIONS);
             transitions.add(t);
+            this.addAttribute(TRANSITIONS, transitions);
             return t;
         }
 
     }
+    public Automate numeroter(int id_depart){
+        Automate resultat=new Automate(this.getId());
+        for (State st : this.getStates()) {
+            if (st.isAcceptable() && !st.isInitial()) {
+                resultat.addAcceptableState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
+            } else if (st.isInitial() && !st.isAcceptable()) {
+                resultat.addInitialState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
+            } else if (st.isAcceptable() && st.isInitial()) {
+                resultat.addInitialAcceptableState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
+            } else {
+                resultat.addState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
+            }
+        }
 
+        for (Transition t : this.getTransitions()) {
+            int id1 = Integer.valueOf(t.getState1().getId());
+            int id2 = Integer.valueOf(t.getState2().getId());
+            resultat.addTransition(resultat.getState(String.valueOf(id_depart+id1)), resultat.getState(String.valueOf(id_depart+id2)), t.getLettre());
+        }
+        
+        return resultat;
+    }
     public Automate getCopy() {
         Automate copy = new Automate(this.getId());
         for (State st : this.getStates()) {
@@ -336,7 +386,9 @@ public class Automate extends MultiGraph {
     }
 
     public void setSigma(HashSet<Character> sigma) {
+        this.removeAttribute(SIGMA);
         this.sigma = sigma;
+        this.addAttribute(SIGMA, this.sigma);
     }
 
     public void setTransitions(HashSet<Transition> transitions) {
@@ -381,7 +433,7 @@ public class Automate extends MultiGraph {
 
             //Récupération de l'alphabet sigma
             HashSet<Character> tmpH = new HashSet<Character>();
-            String chaine = this.getAttribute("sigma");
+            String chaine = this.getAttribute(SIGMA);
 
             for (int i = 0; i < chaine.length(); i++) {
                 if (i != 0 && i != chaine.length() - 1) {
@@ -393,15 +445,15 @@ public class Automate extends MultiGraph {
             }
 
             sigma = tmpH;
-            removeAttribute("sigma");
-            addAttribute("sigma", sigma);
+            removeAttribute(SIGMA);
+            addAttribute(SIGMA, sigma);
 
             //Récupération des transitions
             for (Edge e : this.getEachEdge()) {
                 State a = e.getNode0();
                 State b = e.getNode1();
 
-                String string = e.getAttribute("lettres");
+                String string = e.getAttribute(LETTRES);
                 for (int i = 0; i < string.length(); i++) {
                     if (i != 0 && i != string.length() - 1) {
                         Character character = string.charAt(i);
@@ -409,12 +461,28 @@ public class Automate extends MultiGraph {
                             Transition t = new Transition(a, b, character);
                             transitions.add(t);
 
-
                         }
                     }
                 }
 
             }
+            for(State state:this.getStates()){
+                WearingSprite.removeAllSprite(spriteManager, state.getId(), state.isInitial(),state.isAcceptable());
+                if(state.isAcceptable() && state.isInitial())
+                    WearingSprite.putInitialAcceptableSprite(spriteManager, state);
+                else if(state.isAcceptable())
+                    WearingSprite.putAcceptableSprite(spriteManager, state);
+                else if(state.isInitial())
+                    WearingSprite.putInitialSprite(spriteManager, state);
+            }
+            
+            for(Edge e:this.getEachEdge()){
+                WearingSprite.removeSpriteOnEdge(spriteManager, e);
+                String label= e.getAttribute(LETTRES).toString();
+                label=label.substring(1, label.length() - 1);
+                WearingSprite.putSpriteOnEdge(spriteManager, e, label);
+            }
+            
 
 
         } catch (IOException ex) {
@@ -430,7 +498,6 @@ public class Automate extends MultiGraph {
 
     @Override
     public State addNode(String id) {
-//        State st = (State) nf.newInstance(id, this);
         super.addNode(id);
         return this.getState(id);
     }
@@ -454,4 +521,7 @@ public class Automate extends MultiGraph {
         return nodeF;
 
     }
+    
+    
+
 }

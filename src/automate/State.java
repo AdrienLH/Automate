@@ -8,7 +8,10 @@ import org.graphstream.graph.implementations.MultiNode;
 
 /**
  *
- * @author Adrien
+ * @author adrien
+ * TPE Master 1
+ * AS 2011-2012
+ * Classe representant un état d'un automate
  */
 public class State extends MultiNode {
 

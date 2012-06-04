@@ -15,7 +15,10 @@ import org.graphstream.graph.implementations.MultiNode;
 
 /**
  *
- * @author Adrien
+ * @author adrien
+ * TPE Master 1
+ * AS 2011-2012
+ * Classe permettant de calculer la reunion de deux automates
  */
 public class Union {
 
@@ -31,23 +34,8 @@ public class Union {
         
         Automate automate_tmp = new Automate(automate2.getId());
         int id_depart = Integer.valueOf(automate1.getNodeCount()+"");
-        for (State st : automate2.getStates()) {
-            if (st.isAcceptable() && !st.isInitial()) {
-                automate_tmp.addAcceptableState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
-            } else if (st.isInitial() && !st.isAcceptable()) {
-                automate_tmp.addInitialState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
-            } else if (st.isAcceptable() && st.isInitial()) {
-                automate_tmp.addInitialAcceptableState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
-            } else {
-                automate_tmp.addState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
-            }
-        }
-
-        for (Transition t : automate2.getTransitions()) {
-            int id1 = Integer.valueOf(t.getState1().getId());
-            int id2 = Integer.valueOf(t.getState2().getId());
-            automate_tmp.addTransition(automate_tmp.getState(String.valueOf(id_depart+id1)), automate_tmp.getState(String.valueOf(id_depart+id2)), t.getLettre());
-        }
+        automate_tmp=automate2.numeroter(id_depart);
+        
         
         
         if (automate1.equals(automate2)) {
@@ -68,9 +56,9 @@ public class Union {
             }
 
             for (State st : automate_tmp.getStates()) {
-                if (st.isAcceptable() && !st.isAcceptable()) {
+                if (st.isAcceptable() && !st.isInitial()) {
                     resultat.addAcceptableState(st.getId());
-                } else if (st.isInitial() && !st.isInitial()) {
+                } else if (st.isInitial() && !st.isAcceptable()) {
                     resultat.addInitialState(st.getId());
                 } else if (st.isAcceptable() && st.isInitial()) {
                     resultat.addInitialAcceptableState(st.getId());

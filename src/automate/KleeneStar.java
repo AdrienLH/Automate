@@ -13,7 +13,10 @@ import java.util.Iterator;
 
 /**
  *
- * @author Adrien
+ * @author adrien
+ * TPE Master 1
+ * AS 2011-2012
+ * Classe permettant de calculer l'étoile d'un automate
  */
 public class KleeneStar {
 

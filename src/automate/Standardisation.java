@@ -11,6 +11,9 @@ import org.graphstream.graph.Node;
 /**
  *
  * @author adrien
+ * TPE Master 1
+ * AS 2011-2012
+ * Classe permettant de calculer le standard d'un automate
  */
 public class Standardisation {
 
@@ -18,13 +21,28 @@ public class Standardisation {
 
     public Standardisation() {
     }
-
+    /*
+     * Méthode permettant de standardiser un automate non-standard
+     */
     public Automate standardise(Automate au) {
         if (au.getInitialStates().size() == 1) {
             return au.getCopy();
         } else {
+            State d=null;
             resultat = new Automate(au.getId());
-            State d = resultat.addInitialState(String.valueOf(au.getNodeCount() + ""));
+            boolean initAcceptable=false;
+            for(State st: (ArrayList<State>)au.getInitialStates().clone()){
+                if(st.isAcceptable() && st.isInitial()){
+                    initAcceptable=true;
+                }
+            }
+            if(initAcceptable){
+                d = resultat.addInitialAcceptableState(String.valueOf(au.getNodeCount() + ""));
+            }else{
+                d = resultat.addInitialState(String.valueOf(au.getNodeCount() + ""));
+            }
+            resultat.setSigma(au.getSigma());
+            
             for (State st : au.getStates()) {
                 if (st.isAcceptable()) {
                     resultat.addAcceptableState(st.getId());
@@ -40,7 +58,7 @@ public class Standardisation {
                         d.setAcceptable(true);
 //                        resultat.getAcceptableStates().add(d);
                     
-                } else {
+                } else{
                     resultat.addState(st.getId());
                 }
             }

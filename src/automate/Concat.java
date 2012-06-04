@@ -9,43 +9,35 @@ import java.util.ArrayList;
 /**
  *
  * @author adrien
+ * TPE Master 1
+ * AS 2011-2012
+ * Classe permettant d'effectuer la concatenation de deux automates
  */
 public class Concat {
 
     Automate resultat;
-
+    private String id_automate="";
     public Concat() {
-        resultat = null;
+        
     }
-
+    /**
+     * @return Automate resultat de la concatenation de deux automates
+     * Méthode permettant de calculer la concatenation de deux automates
+     */
     public Automate concat(Automate automate1, Automate automate2) {
         Standardisation stdOp = new Standardisation();
         Automate auStd = new Automate(automate2.getId());
-        resultat = new Automate(automate1.getId() + automate2.getId());
-
+        id_automate=automate1.getId() + automate2.getId();
+        resultat = new Automate(id_automate);
+        
         Automate automate_tmp = new Automate(automate2.getId());
+        automate2=stdOp.standardise(automate2);
         int id_depart = Integer.valueOf(automate1.getNodeCount()+ "");
-        for (State st : automate2.getStates()) {
-            if (st.isAcceptable() && !st.isInitial()) {
-                automate_tmp.addAcceptableState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
-            } else if (st.isInitial() && !st.isAcceptable()) {
-                automate_tmp.addInitialState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
-            } else if (st.isAcceptable() && st.isInitial()) {
-                automate_tmp.addInitialAcceptableState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
-            } else {
-                automate_tmp.addState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
-            }
-        }
 
-        for (Transition t : automate2.getTransitions()) {
-            int id1 = Integer.valueOf(t.getState1().getId());
-            int id2 = Integer.valueOf(t.getState2().getId());
-            automate_tmp.addTransition(automate_tmp.getState(String.valueOf(id_depart+id1)), automate_tmp.getState(String.valueOf(id_depart+id2)), t.getLettre());
-        }
+        automate_tmp=automate2.numeroter(id_depart-1);
 
-
-        if (automate2.getInitialStates().size() != 1) {
-            auStd = stdOp.standardise(automate2);
+        if (automate_tmp.getInitialStates().size() != 1) {
+            auStd = stdOp.standardise(automate_tmp);
         } else {
             auStd = automate_tmp.getCopy();
         }
@@ -64,7 +56,7 @@ public class Concat {
             }
         }
         for (State st : auStd.getStates()) {
-            if (st.isAcceptable() && !st.equals(d2)) {
+            if (st.isAcceptable() && !st.equals(d2) && resultat.getState(st.getId())==null) {
                 resultat.addAcceptableState(st.getId());
             } else if (!st.equals(d2)) {
                 resultat.addState(st.getId());
