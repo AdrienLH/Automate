@@ -508,6 +508,11 @@ public class Automate extends MultiGraph {
     }
 
     @Override
+    public Edge removeEdge(Edge e){
+        WearingSprite.removeSpriteOnEdge(spriteManager, e);
+        return super.removeEdge(e);
+    }
+    @Override
     public NodeFactory<? extends State> nodeFactory() {
         NodeFactory nodeF = new NodeFactory() {
 

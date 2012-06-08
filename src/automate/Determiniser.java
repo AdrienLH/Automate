@@ -41,7 +41,7 @@ public class Determiniser {
 
         String id_initial = auStd.getInitialStates().get(0).getId();
         T.addAll(auStd.getInitialStates());
-        ArrayList<State> alStateP = new ArrayList<State>();
+        HashSet<State> alStateP = new HashSet<State>();
         ArrayList<State> alStateVisite = new ArrayList<State>();
         while (!T.isEmpty()) {
             State P = T.remove();
@@ -60,6 +60,7 @@ public class Determiniser {
             for (String s : P.getId().split(",")) {
                 alStateP.add(auStd.getState(s));
             }
+            
 
             resultat.getState(P.getId()).addAttribute("visite", "visite");
             HashMap<Character, State> listChar = null;
@@ -71,23 +72,7 @@ public class Determiniser {
                 listChar = new HashMap<Character, State>();
                 for (State st : alStateP) {
                     for (Transition t : auStd.getTransitions()) {
-                        if (t.getState1().getId().equals(st.getId()) && t.getLettre().equals(a) && listChar.containsKey(a)) {
-                            if (id.isEmpty() && listChar.get(a).getId().contains(t.getState2().getId())) {
-                                id = listChar.get(a).getId();
-                            } else if (id.isEmpty() && !listChar.get(a).getId().contains(t.getState2().getId())) {
-                                id = t.getState2().getId() + listChar.get(a).getId();
-                            } else if (!id.isEmpty() && listChar.get(a).getId().contains(t.getState2().getId())) {
-                                if (listChar.get(a).getId().contains(id)) {
-                                    id = listChar.get(a).getId();
-                                } else if (!listChar.get(a).getId().contains(id)) {
-                                    id = id + listChar.get(a).getId();
-                                }
-                            }
-                            if (listChar.get(a).isAcceptable()) {
-                                acceptable = true;
-                            }
-
-                        } else if (t.getState1().getId().equals(st.getId()) && t.getLettre().equals(a) && !listChar.containsKey(a)) {
+                        if (t.getState1().getId().equals(st.getId()) && t.getLettre().equals(a) && !listChar.containsKey(a)) {
                             if (id.isEmpty()) {
                                 id = t.getState2().getId();
                             } else if (!id.contains(t.getState2().getId())) {
@@ -114,7 +99,9 @@ public class Determiniser {
                             R = resultat.getState(id);
                             resultat.addTransition(P, R, a);
                         }
-                        listChar.put(a, R);
+                        if (R != null) {
+                            listChar.put(a, R);
+                        }
 
                         id = "";
                     }
@@ -122,7 +109,7 @@ public class Determiniser {
 
                 }
                 alStateVisite.add(P);
-                if (!alStateVisite.contains(R)) {
+                if (!alStateVisite.contains(R) && R != null) {
                     T.add(R);
                 }
 
