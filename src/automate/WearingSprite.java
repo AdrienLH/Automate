@@ -119,8 +119,10 @@ public  class WearingSprite {
 	 */
 	public static void removeSpriteOnEdge(SpriteManager spriteManager, Edge e){
 		Sprite s=spriteManager.getSprite(e.getId());
-		s.detach();
-		spriteManager.removeSprite(s.getId());
+                if(s!=null){
+                    s.detach();
+                    spriteManager.removeSprite(s.getId());
+                }
 	
 	}
 }
