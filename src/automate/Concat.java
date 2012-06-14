@@ -33,8 +33,12 @@ public class Concat {
         Automate automate_tmp = new Automate(automate2.getId());
         automate2=stdOp.standardise(automate2);
         int id_depart = Integer.valueOf(automate1.getNodeCount()+ "");
-
-        automate_tmp=automate2.numeroter(id_depart-1);
+        
+        if(automate1.getNodeCount()>automate2.getNodeCount()){
+            automate_tmp=automate2.numeroter(id_depart-1);
+        }else{
+            automate_tmp=automate2.numeroter(id_depart);
+        }
 
         if (automate_tmp.getInitialStates().size() != 1) {
             auStd = stdOp.standardise(automate_tmp);

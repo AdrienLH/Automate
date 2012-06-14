@@ -16,9 +16,8 @@ import org.graphstream.ui.spriteManager.SpriteManager;
 /**
  *
  * @author adrien
- * TPE Master 1
- * AS 2011-2012
- * Classe representant un automate
+ * TPE Master 1 AS 2011-2012 Classe representant un automate
+ * 
  */
 public class Automate extends MultiGraph {
 
@@ -29,12 +28,13 @@ public class Automate extends MultiGraph {
     private ArrayList<State> acceptableStates;
     private NodeFactory nf;
     private SpriteManager spriteManager;
-    public static final String TRANSITIONS="transitions";
-    public static final String SIGMA="sigma";
-    public static final String STATES="states";
-    public static final String INITIAL_STATES="initialStates";
-    public static final String ACCEPTABLE_STATES="acceptableStates";
-    public static final String LETTRES="lettres";
+    public static final String TRANSITIONS = "transitions";
+    public static final String SIGMA = "sigma";
+    public static final String STATES = "states";
+    public static final String INITIAL_STATES = "initialStates";
+    public static final String ACCEPTABLE_STATES = "acceptableStates";
+    public static final String LETTRES = "lettres";
+
     public Automate(String id) {
         super(id);
         WearingSprite.wearAutomate(this);
@@ -55,7 +55,7 @@ public class Automate extends MultiGraph {
 
     }
     /*
-     * Ajout d'un etat au sein de l'automate
+     * Méthode ayant pour but d'ajouter état au sein de l'automate
      */
 
     public State addState(String id) {
@@ -128,6 +128,9 @@ public class Automate extends MultiGraph {
         return st;
     }
 
+    /*
+     * Permet d'ajouter les états initiaux dans un automate
+     */
     public State addInitialAcceptableState() {
         String id = this.getNodeCount() + "";
         State sFinal = this.addNode(id);
@@ -188,7 +191,7 @@ public class Automate extends MultiGraph {
 
     public ArrayList<State> getStates() {
 
-        return  states;
+        return states;
     }
 
     public ArrayList<State> getInitialStates() {
@@ -205,43 +208,36 @@ public class Automate extends MultiGraph {
         return sigma;
     }
 
+    /*
+     * Méthode permettant d'ajouter un lettre qui par la suite sera 
+     * reconnue par l'automate.
+     */
     public void addLettre(Character lettre) {
         this.removeAttribute(SIGMA);
         sigma.add(lettre);
         this.addAttribute(SIGMA, sigma);
     }
 
+    /*
+     * Méthode permettant de supprimer un lettre de Sigma et de l'automate
+     */
     public void removeLettre(Character lettre) {
 
-        for (Iterator<Transition> itt = transitions.iterator(); itt.hasNext();) {
-            Transition t = itt.next();
-            if (t.getLettre() == lettre) {
-                itt.remove();
+        for(Transition t: (HashSet<Transition>)transitions.clone()){
+            if(t.getLettre().equals(lettre)){
+                this.removeTransition(t);
             }
         }
-        Collection<Edge> alE = this.getEdgeSet();
-        HashSet liste = new HashSet();
-        for (Edge e : getEachEdge()) {
-            if (e.getAttribute(LETTRES) != null) {
-                liste = e.getAttribute(LETTRES);
-                if (liste.contains(lettre)) {
-                    liste.remove(lettre);
-                    if (liste.isEmpty()) {
-                        this.removeEdge(e);
-                    }
-                }
-            }
-            e.addAttribute(LETTRES, liste);
-            String label = e.getAttribute(LETTRES).toString();
-            label = label.substring(1, label.length() - 1);
-            WearingSprite.putSpriteOnEdge(spriteManager, e, label);
-        }
+        
         this.removeAttribute(SIGMA);
         sigma.remove(lettre);
         this.addAttribute(SIGMA, sigma);
 
     }
 
+    /*
+     * Méthode permettant de supprimer la transition dans un automate
+     */
     public void removeTransition(Transition t) {
         HashSet liste = new HashSet();
         for (Edge e : getEachEdge()) {
@@ -263,12 +259,15 @@ public class Automate extends MultiGraph {
             }
         }
         if (transitions.contains(t)) {
-             this.removeAttribute(TRANSITIONS);
+            this.removeAttribute(TRANSITIONS);
             transitions.remove(t);
             this.addAttribute(TRANSITIONS, transitions);
         }
     }
 
+    /*
+     * Méthode permettant d'ajouter une transition dans un automate
+     */
     public Transition addTransition(State a, State b, Character lettre) {
         if (sigma.contains(lettre)) {
             if (a.hasEdgeToward(b)) {
@@ -279,7 +278,7 @@ public class Automate extends MultiGraph {
                 String label = e.getAttribute(LETTRES).toString();
                 label = label.substring(1, label.length() - 1);
                 WearingSprite.putSpriteOnEdge(spriteManager, e, label);
-            } else {
+            } else if (!a.hasEdgeToward(b) && this.getEdge(a.getId() + "-" + b.getId())==null) {
                 String id = a.getId() + "-" + b.getId();
                 Edge e = this.addEdge(id, a, b, true);
                 HashSet liste = new HashSet();
@@ -305,7 +304,7 @@ public class Automate extends MultiGraph {
                 String label = e.getAttribute(LETTRES).toString();
                 label = label.substring(1, label.length() - 1);
                 WearingSprite.putSpriteOnEdge(spriteManager, e, label);
-            } else {
+            } else if(!a.hasEdgeToward(b)&& this.getEdge(a.getId() + "-" + b.getId())==null){
                 String id = a.getId() + "-" + b.getId();
                 Edge e = this.addEdge(id, a, b, true);
                 HashSet liste = new HashSet();
@@ -316,35 +315,46 @@ public class Automate extends MultiGraph {
                 WearingSprite.putSpriteOnEdge(spriteManager, e, label);
             }
             Transition t = new Transition(a, b, lettre);
-             this.removeAttribute(TRANSITIONS);
+            this.removeAttribute(TRANSITIONS);
             transitions.add(t);
             this.addAttribute(TRANSITIONS, transitions);
             return t;
         }
 
     }
-    public Automate numeroter(int id_depart){
-        Automate resultat=new Automate(this.getId());
+
+    /*
+     * Cette méthode permet de renuméroter les états d'un automate
+     * à partir d'un identifiant passé en paramètre.
+     * Elle est faite dans le but d'éviter les conflits des identifiant lors
+     * des opérations comme l'union ou bien la concatenation sur les automates
+     */
+    public Automate numeroter(int id_depart) {
+        Automate resultat = new Automate(this.getId());
         for (State st : this.getStates()) {
             if (st.isAcceptable() && !st.isInitial()) {
-                resultat.addAcceptableState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
+                resultat.addAcceptableState(String.valueOf(Integer.valueOf(st.getId()) + id_depart));
             } else if (st.isInitial() && !st.isAcceptable()) {
-                resultat.addInitialState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
+                resultat.addInitialState(String.valueOf(Integer.valueOf(st.getId()) + id_depart));
             } else if (st.isAcceptable() && st.isInitial()) {
-                resultat.addInitialAcceptableState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
+                resultat.addInitialAcceptableState(String.valueOf(Integer.valueOf(st.getId()) + id_depart));
             } else {
-                resultat.addState(String.valueOf(Integer.valueOf(st.getId())+id_depart));
+                resultat.addState(String.valueOf(Integer.valueOf(st.getId()) + id_depart));
             }
         }
 
         for (Transition t : this.getTransitions()) {
             int id1 = Integer.valueOf(t.getState1().getId());
             int id2 = Integer.valueOf(t.getState2().getId());
-            resultat.addTransition(resultat.getState(String.valueOf(id_depart+id1)), resultat.getState(String.valueOf(id_depart+id2)), t.getLettre());
+            resultat.addTransition(resultat.getState(String.valueOf(id_depart + id1)), resultat.getState(String.valueOf(id_depart + id2)), t.getLettre());
         }
-        
+
         return resultat;
     }
+
+    /*
+     * La méthode getCopy retourne une copie d'un automate
+     */
     public Automate getCopy() {
         Automate copy = new Automate(this.getId());
         for (State st : this.getStates()) {
@@ -406,6 +416,8 @@ public class Automate extends MultiGraph {
                 tmp.add((State) st);
             }
             states = tmp;
+            this.removeAttribute(STATES);
+            this.addAttribute(STATES, states);
 
             //Récupération des états initiaux
             tmp = new ArrayList<State>();
@@ -418,7 +430,8 @@ public class Automate extends MultiGraph {
                 }
             }
             initialStates = tmp;
-
+            this.removeAttribute(INITIAL_STATES);
+            this.addAttribute(INITIAL_STATES, initialStates);
             //Récupération des états finaux
             tmp = new ArrayList<State>();
             for (Node node : this.getEachNode()) {
@@ -430,6 +443,8 @@ public class Automate extends MultiGraph {
                 }
             }
             acceptableStates = tmp;
+            this.removeAttribute(ACCEPTABLE_STATES);
+            this.addAttribute(ACCEPTABLE_STATES, acceptableStates);
 
             //Récupération de l'alphabet sigma
             HashSet<Character> tmpH = new HashSet<Character>();
@@ -466,23 +481,24 @@ public class Automate extends MultiGraph {
                 }
 
             }
-            for(State state:this.getStates()){
-                WearingSprite.removeAllSprite(spriteManager, state.getId(), state.isInitial(),state.isAcceptable());
-                if(state.isAcceptable() && state.isInitial())
+            for (State state : this.getStates()) {
+                WearingSprite.removeAllSprite(spriteManager, state.getId(), state.isInitial(), state.isAcceptable());
+                if (state.isAcceptable() && state.isInitial()) {
                     WearingSprite.putInitialAcceptableSprite(spriteManager, state);
-                else if(state.isAcceptable())
+                } else if (state.isAcceptable()) {
                     WearingSprite.putAcceptableSprite(spriteManager, state);
-                else if(state.isInitial())
+                } else if (state.isInitial()) {
                     WearingSprite.putInitialSprite(spriteManager, state);
+                }
             }
-            
-            for(Edge e:this.getEachEdge()){
+
+            for (Edge e : this.getEachEdge()) {
                 WearingSprite.removeSpriteOnEdge(spriteManager, e);
-                String label= e.getAttribute(LETTRES).toString();
-                label=label.substring(1, label.length() - 1);
+                String label = e.getAttribute(LETTRES).toString();
+                label = label.substring(1, label.length() - 1);
                 WearingSprite.putSpriteOnEdge(spriteManager, e, label);
             }
-            
+
 
 
         } catch (IOException ex) {
@@ -508,10 +524,11 @@ public class Automate extends MultiGraph {
     }
 
     @Override
-    public Edge removeEdge(Edge e){
+    public Edge removeEdge(Edge e) {
         WearingSprite.removeSpriteOnEdge(spriteManager, e);
         return super.removeEdge(e);
     }
+
     @Override
     public NodeFactory<? extends State> nodeFactory() {
         NodeFactory nodeF = new NodeFactory() {
@@ -526,7 +543,4 @@ public class Automate extends MultiGraph {
         return nodeF;
 
     }
-    
-    
-
 }
